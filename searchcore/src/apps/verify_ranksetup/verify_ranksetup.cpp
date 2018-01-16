@@ -1,5 +1,6 @@
 // Copyright 2017 Yahoo Holdings. Licensed under the terms of the Apache 2.0 license. See LICENSE in the project root.
 
+#include "verify_ranksetup.h"
 #include <vespa/config-attributes.h>
 #include <vespa/config-imported-fields.h>
 #include <vespa/config-indexschema.h>
@@ -16,10 +17,9 @@
 #include <vespa/searchlib/features/setup.h>
 #include <vespa/searchlib/fef/fef.h>
 #include <vespa/searchlib/fef/test/plugin/setup.h>
-#include <vespa/fastos/app.h>
 
 #include <vespa/log/log.h>
-LOG_SETUP("vespa-verify-ranksetup");
+LOG_SETUP(".verify_ranksetup");
 
 using config::ConfigContext;
 using config::ConfigHandle;
@@ -39,26 +39,28 @@ using vespalib::tensor::DefaultTensorEngine;
 using vespalib::eval::SimpleConstantValue;
 using vespalib::eval::BadConstantValue;
 
-class App : public FastOS_Application
+namespace {
+
+class VerifyRankSetup
 {
+private:
+    static bool verify(const search::index::Schema &schema,
+                       const search::fef::Properties &props,
+                       const IConstantValueRepo &repo);
+
+    static bool verifyConfig(const RankProfilesConfig &rankCfg,
+                             const IndexschemaConfig &schemaCfg,
+                             const AttributesConfig &attributeCfg,
+                             const RankingConstantsConfig &constantsCfg);
+
 public:
-    bool verify(const search::index::Schema &schema,
-                const search::fef::Properties &props,
-                const IConstantValueRepo &repo);
-
-    bool verifyConfig(const RankProfilesConfig &rankCfg,
-                      const IndexschemaConfig &schemaCfg,
-                      const AttributesConfig &attributeCfg,
-                      const RankingConstantsConfig &constantsCfg);
-
-    int usage();
-    int Main() override;
+    static bool verify(const std::string & configId);
 };
 
 struct DummyConstantValueRepo : IConstantValueRepo {
     const RankingConstantsConfig &cfg;
     DummyConstantValueRepo(const RankingConstantsConfig &cfg_in) : cfg(cfg_in) {}
-    virtual vespalib::eval::ConstantValue::UP getConstant(const vespalib::string &name) const override {
+    vespalib::eval::ConstantValue::UP getConstant(const vespalib::string &name) const override {
         for (const auto &entry: cfg.constant) {
             if (entry.name == name) {
                 const auto &engine = DefaultTensorEngine::ref();
@@ -75,9 +77,9 @@ struct DummyConstantValueRepo : IConstantValueRepo {
 };
 
 bool
-App::verify(const search::index::Schema &schema,
-            const search::fef::Properties &props,
-            const IConstantValueRepo &repo)
+VerifyRankSetup::verify(const search::index::Schema &schema,
+                        const search::fef::Properties &props,
+                        const IConstantValueRepo &repo)
 {
     proton::matching::IndexEnvironment indexEnv(schema, props, repo);
     search::fef::BlueprintFactory factory;
@@ -103,10 +105,8 @@ App::verify(const search::index::Schema &schema,
 }
 
 bool
-App::verifyConfig(const RankProfilesConfig &rankCfg,
-                  const IndexschemaConfig &schemaCfg,
-                  const AttributesConfig &attributeCfg,
-                  const RankingConstantsConfig &constantsCfg)
+VerifyRankSetup::verifyConfig(const RankProfilesConfig &rankCfg, const IndexschemaConfig &schemaCfg,
+                              const AttributesConfig &attributeCfg, const RankingConstantsConfig &constantsCfg)
 {
     bool ok = true;
     search::index::Schema schema;
@@ -130,23 +130,10 @@ App::verifyConfig(const RankProfilesConfig &rankCfg,
     return ok;
 }
 
-int
-App::usage()
+bool
+VerifyRankSetup::verify(const std::string & configid)
 {
-    fprintf(stderr, "Usage: vespa-verify-ranksetup <config-id>\n");
-    return 1;
-}
-
-int
-App::Main()
-{
-    if (_argc != 2) {
-        return usage();
-    }
-
-    const std::string configid = _argv[1];
-    LOG(debug, "verifying rank setup for config id '%s' ...",
-        configid.c_str());
+    LOG(debug, "verifying rank setup for config id '%s' ...", configid.c_str());
 
     bool ok = false;
     try {
@@ -159,22 +146,19 @@ App::Main()
         ConfigHandle<RankingConstantsConfig>::UP constantsHandle = subscriber.subscribe<RankingConstantsConfig>(cfgId);
 
         subscriber.nextConfig();
-        ok = verifyConfig(*rankHandle->getConfig(),
-                          *schemaHandle->getConfig(),
-                          *attributesHandle->getConfig(),
-                          *constantsHandle->getConfig());
+        ok = verifyConfig(*rankHandle->getConfig(), *schemaHandle->getConfig(),
+                          *attributesHandle->getConfig(), *constantsHandle->getConfig());
     } catch (ConfigRuntimeException & e) {
         LOG(error, "Unable to subscribe to config: %s", e.getMessage().c_str());
     } catch (InvalidConfigException & e) {
         LOG(error, "Error getting config: %s", e.getMessage().c_str());
     }
-    if (!ok) {
-        return 1;
-    }
-    return 0;
+    return ok;
 }
 
-int main(int argc, char **argv) {
-    App app;
-    return app.Entry(argc, argv);
+}
+
+bool
+verifyRankSetup(const char * configId) {
+    return VerifyRankSetup::verify(configId);
 }
