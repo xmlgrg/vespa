@@ -8,7 +8,9 @@ vespa_add_library(searchcore_verify_ranksetup
     searchcore_fconfig
     searchcore_matching
     searchcore_documentmetastore
+    ${JAVA_JVM_LIBRARY}
 )
+target_include_directories(searchcore_verify_ranksetup PUBLIC SYSTEM ${JNI_INCLUDE_DIRS})
 
 vespa_add_executable(searchcore_verify_ranksetup_app
     SOURCES
