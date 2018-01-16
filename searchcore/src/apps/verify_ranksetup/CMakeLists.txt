@@ -2,6 +2,7 @@
 vespa_add_library(searchcore_verify_ranksetup
     SOURCES
     verify_ranksetup.cpp
+    com_yahoo_vespa_model_application_validation_NativeVerifyRankSetup.cpp
     INSTALL lib64
     DEPENDS
     searchcore_fconfig

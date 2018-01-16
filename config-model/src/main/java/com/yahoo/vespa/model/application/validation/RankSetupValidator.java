@@ -76,18 +76,16 @@ public class RankSetupValidator extends Validator {
         }
     }
 
-    private boolean validate(String configId, SearchCluster searchCluster, String sdName, DeployLogger deployLogger, File tempDir) {
+    private boolean validate(String configId, SearchCluster searchCluster, String sdName,
+                             DeployLogger deployLogger, File tempDir) {
         Instant start = Instant.now();
         try {
-            boolean ret = execValidate(configId, searchCluster, sdName, deployLogger);
+            boolean ret = validateWithJNI(configId);
             if (!ret) {
                 // Give up, don't say same error msg repeatedly
                 deleteTempDir(tempDir);
             }
-            log.log(LogLevel.DEBUG, String.format("Validating %s for %s, %s took %s ms",
-                                                  sdName,
-                                                  searchCluster,
-                                                  configId,
+            log.log(LogLevel.DEBUG, String.format("Validating %s for %s, %s took %s ms", sdName, searchCluster, configId,
                                                   Duration.between(start, Instant.now()).toMillis()));
             return ret;
         } catch (IllegalArgumentException e) {
@@ -131,13 +129,22 @@ public class RankSetupValidator extends Validator {
         IOUtils.writeFile(dir + configName, StringUtilities.implodeMultiline(ConfigInstance.serialize(config)), false);
     }
 
+    private boolean validateWithJNI(String configId) {
+        try {
+            return NativeVerifyRankSetup.verify(configId);
+        } catch (UnsatisfiedLinkError e) {
+            return false;
+        } catch (NoClassDefFoundError e) {
+            return false;
+        }
+    }
     private boolean execValidate(String configId, SearchCluster sc, String sdName, DeployLogger deployLogger) {
         String job = "vespa-verify-ranksetup-bin " + configId;
         ProcessExecuter executer = new ProcessExecuter();
         try {
             Pair<Integer, String> ret = executer.exec(job);
             if (ret.getFirst() != 0) {
-                validateFail(ret.getSecond(), sc, sdName, deployLogger);
+                validateFail(ret.getSecond(), sc.getClusterName(), sdName, deployLogger);
             }
         } catch (IOException e) {
             validateWarn(e, deployLogger);
@@ -152,8 +159,8 @@ public class RankSetupValidator extends Validator {
         deployLogger.log(LogLevel.WARNING, msg);
     }
 
-    private void validateFail(String output, SearchCluster sc, String sdName, DeployLogger deployLogger) {
-        String errMsg = "For search cluster '" + sc.getClusterName() + "', search definition '" + sdName + "': error in rank setup. Details:\n";
+    private void validateFail(String output, String sc, String sdName, DeployLogger deployLogger) {
+        String errMsg = "For search cluster '"  + "', search definition '" + sdName + "': error in rank setup. Details:\n";
         for (String line : output.split("\n")) {
             // Remove debug lines from start script
             if (line.startsWith("debug\t")) continue;
