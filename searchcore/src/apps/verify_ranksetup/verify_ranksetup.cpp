@@ -19,6 +19,9 @@
 #include <vespa/searchlib/fef/test/plugin/setup.h>
 
 #include <vespa/log/log.h>
+#include <vespa/vespalib/util/stringfmt.h>
+#include <vespa/vespalib/stllike/asciistream.h>
+
 LOG_SETUP(".verify_ranksetup");
 
 using config::ConfigContext;
@@ -44,17 +47,19 @@ namespace {
 class VerifyRankSetup
 {
 private:
-    static bool verify(const search::index::Schema &schema,
-                       const search::fef::Properties &props,
-                       const IConstantValueRepo &repo);
+    std::vector<vespalib::string> _errors;
+    bool verify(const search::index::Schema &schema,
+                const search::fef::Properties &props,
+                const IConstantValueRepo &repo);
 
-    static bool verifyConfig(const RankProfilesConfig &rankCfg,
-                             const IndexschemaConfig &schemaCfg,
-                             const AttributesConfig &attributeCfg,
-                             const RankingConstantsConfig &constantsCfg);
+    bool verifyConfig(const RankProfilesConfig &rankCfg,
+                      const IndexschemaConfig &schemaCfg,
+                      const AttributesConfig &attributeCfg,
+                      const RankingConstantsConfig &constantsCfg);
 
 public:
-    static bool verify(const std::string & configId);
+    bool verify(const std::string & configId);
+    const std::vector<vespalib::string> & getMessages() const { return _errors; }
 };
 
 struct DummyConstantValueRepo : IConstantValueRepo {
@@ -90,16 +95,16 @@ VerifyRankSetup::verify(const search::index::Schema &schema,
     rankSetup.configure(); // reads config values from the property map
     bool ok = true;
     if (!rankSetup.getFirstPhaseRank().empty()) {
-        ok = verifyFeature(factory, indexEnv, rankSetup.getFirstPhaseRank(), "first phase ranking") && ok;
+        ok = verifyFeature(factory, indexEnv, rankSetup.getFirstPhaseRank(), "first phase ranking", _errors) && ok;
     }
     if (!rankSetup.getSecondPhaseRank().empty()) {
-        ok = verifyFeature(factory, indexEnv, rankSetup.getSecondPhaseRank(), "second phase ranking") && ok;
+        ok = verifyFeature(factory, indexEnv, rankSetup.getSecondPhaseRank(), "second phase ranking", _errors) && ok;
     }
     for (size_t i = 0; i < rankSetup.getSummaryFeatures().size(); ++i) {
-        ok = verifyFeature(factory, indexEnv, rankSetup.getSummaryFeatures()[i], "summary features") && ok;
+        ok = verifyFeature(factory, indexEnv, rankSetup.getSummaryFeatures()[i], "summary features", _errors) && ok;
     }
     for (size_t i = 0; i < rankSetup.getDumpFeatures().size(); ++i) {
-        ok = verifyFeature(factory, indexEnv, rankSetup.getDumpFeatures()[i], "dump features") && ok;
+        ok = verifyFeature(factory, indexEnv, rankSetup.getDumpFeatures()[i], "dump features", _errors) && ok;
     }
     return ok;
 }
@@ -121,9 +126,13 @@ VerifyRankSetup::verifyConfig(const RankProfilesConfig &rankCfg, const Indexsche
                            profile.fef.property[j].value);
         }
         if (verify(schema, properties, repo)) {
-            LOG(info, "rank profile '%s': pass", profile.name.c_str());
+            vespalib::string msg = vespalib::make_string("rank profile '%s': pass", profile.name.c_str());
+            LOG(info, "%s", msg.c_str());
+            _errors.emplace_back(msg);
         } else {
-            LOG(error, "rank profile '%s': FAIL", profile.name.c_str());
+            vespalib::string msg = vespalib::make_string("rank profile '%s': FAIL", profile.name.c_str());
+            LOG(error, "%s", msg.c_str());
+            _errors.emplace_back(msg);
             ok = false;
         }
     }
@@ -149,9 +158,13 @@ VerifyRankSetup::verify(const std::string & configid)
         ok = verifyConfig(*rankHandle->getConfig(), *schemaHandle->getConfig(),
                           *attributesHandle->getConfig(), *constantsHandle->getConfig());
     } catch (ConfigRuntimeException & e) {
-        LOG(error, "Unable to subscribe to config: %s", e.getMessage().c_str());
+        vespalib::string msg = vespalib::make_string("Unable to subscribe to config: %s", e.getMessage().c_str());
+        LOG(error, "%s", msg.c_str());
+        _errors.emplace_back(msg);
     } catch (InvalidConfigException & e) {
-        LOG(error, "Error getting config: %s", e.getMessage().c_str());
+        vespalib::string msg = vespalib::make_string("Error getting config: %s", e.getMessage().c_str());
+        LOG(error, "%s", msg.c_str());
+        _errors.emplace_back(msg);
     }
     return ok;
 }
@@ -159,6 +172,13 @@ VerifyRankSetup::verify(const std::string & configid)
 }
 
 bool
-verifyRankSetup(const char * configId) {
-    return VerifyRankSetup::verify(configId);
+verifyRankSetup(const char * configId, std::string & messages) {
+    VerifyRankSetup verifier;
+    bool ok = verifier.verify(configId);
+    vespalib::asciistream os;
+    for (const auto & m : verifier.getMessages()) {
+        os << m << "\n";
+    }
+    messages = os.str();
+    return ok;
 }

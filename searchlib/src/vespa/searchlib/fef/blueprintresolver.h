@@ -8,8 +8,7 @@
 #include "blueprint.h"
 #include "feature_type.h"
 
-namespace search {
-namespace fef {
+namespace search::fef {
 
 class BlueprintFactory;
 class IIndexEnvironment;
@@ -25,7 +24,8 @@ class FeatureNameParser;
 class BlueprintResolver
 {
 public:
-    typedef std::shared_ptr<BlueprintResolver> SP;
+    using SP = std::shared_ptr<BlueprintResolver>;
+    using Errors = std::vector<vespalib::string>;
 
     /**
      * Low-level reference to a single output from a feature
@@ -78,6 +78,7 @@ private:
     ExecutorSpecList              _executorSpecs;
     FeatureMap                    _featureMap;
     FeatureMap                    _seedMap;
+    Errors                        _compileErrors;
 
 public:
     BlueprintResolver(const BlueprintResolver &) = delete;
@@ -113,6 +114,12 @@ public:
      * @return true if ok, false if compilation error
      **/
     bool compile();
+    
+    /**
+     * Will return any accumulated errors during compile
+     * @return list of errors
+     */
+    const Errors & getCompileErrors() const { return _compileErrors; }
 
     /**
      * Obtain a vector indicating the order of instantiation of
@@ -122,7 +129,7 @@ public:
      *
      * @return feature executor assembly directions
      **/
-    const ExecutorSpecList &getExecutorSpecs() const;
+    const ExecutorSpecList &getExecutorSpecs() const { return _executorSpecs; }
 
     /**
      * Obtain the location of all named features known to this
@@ -133,7 +140,7 @@ public:
      *
      * @return feature locations
      **/
-    const FeatureMap &getFeatureMap() const;
+    const FeatureMap &getFeatureMap() const { return _featureMap; }
 
     /**
      * Obtain the location of all seeds used by this resolver. This
@@ -144,8 +151,7 @@ public:
      *
      * @return seed locations
      **/
-    const FeatureMap &getSeedMap() const;
+    const FeatureMap &getSeedMap() const { return _seedMap; }
 };
 
-} // namespace fef
-} // namespace search
+}

@@ -21,6 +21,8 @@ namespace search::fef {
  **/
 class RankSetup
 {
+public:
+    using Errors = BlueprintResolver::Errors;
 private:
     const BlueprintFactory  &_factory;
     const IIndexEnvironment &_indexEnv;
@@ -48,6 +50,7 @@ private:
     feature_t                _rankScoreDropLimit;
     std::vector<vespalib::string> _summaryFeatures;
     std::vector<vespalib::string> _dumpFeatures;
+    Errors                   _compileErrors;
     bool                     _ignoreDefaultRankFeatures;
     bool                     _compiled;
     bool                     _compileError;
@@ -61,6 +64,7 @@ private:
     double                   _softTimeoutFactor;
 
 
+    void compileAndCheckForErrors(BlueprintResolver &bp);
 public:
     RankSetup(const RankSetup &) = delete;
     RankSetup &operator=(const RankSetup &) = delete;
@@ -391,6 +395,12 @@ public:
      * @return true if things went ok, false otherwise (dependency issues)
      **/
     bool compile();
+
+    /**
+     * Will return any accumulated errors during compile
+     * @return list of errors
+     */
+    const Errors & getCompileErrors() const { return _compileErrors; }
 
     // These functions create rank programs for different tasks. Note
     // that the setup function must be called on rank programs for

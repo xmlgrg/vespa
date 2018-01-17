@@ -8,9 +8,10 @@ JNICALL Java_com_yahoo_vespa_model_application_validation_NativeVerifyRankSetup_
     const char *configId = env->GetStringUTFChars(jconfigId, NULL);
     if (NULL == configId) return false;
 
+    std::string messages;
     bool ok = false;
     try {
-        ok = verifyRankSetup(configId);
+        ok = verifyRankSetup(configId, messages);
     } catch (std::exception &) {
 
     }

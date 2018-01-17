@@ -5,8 +5,7 @@
 #include <vespa/log/log.h>
 LOG_SETUP(".fef.blueprintfactory");
 
-namespace search {
-namespace fef {
+namespace search::fef {
 
 BlueprintFactory::BlueprintFactory()
     : _blueprintMap()
@@ -45,5 +44,4 @@ BlueprintFactory::createBlueprint(const vespalib::string &name) const
     return Blueprint::SP(bp.release());
 }
 
-} // namespace fef
-} // namespace search
+}

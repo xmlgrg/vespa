@@ -27,8 +27,12 @@ App::Main()
         return usage();
     }
 
-    bool ok = verifyRankSetup(_argv[1]);
+    std::string messages;
+    bool ok = verifyRankSetup(_argv[1], messages);
 
+    if ( ! messages.empty() ) {
+
+    }
     if (!ok) {
         return 1;
     }

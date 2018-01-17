@@ -47,6 +47,7 @@ struct Compiler : public Blueprint::DependencyHandler {
             : spec(blueprint), parser(parser_in) {}
     };
     using Stack = std::vector<Frame>;
+    using Errors = std::vector<vespalib::string>;
 
     struct FrameGuard {
         Stack &stack;
@@ -58,6 +59,7 @@ struct Compiler : public Blueprint::DependencyHandler {
     const IIndexEnvironment &index_env;
     bool                     compile_error;
     Stack                    resolve_stack;
+    Errors                   errors;
     ExecutorSpecList        &spec_list;
     FeatureMap              &feature_map;
 
@@ -70,17 +72,23 @@ struct Compiler : public Blueprint::DependencyHandler {
           compile_error(false),
           resolve_stack(),
           spec_list(spec_list_out),
-          feature_map(feature_map_out) {}
+          feature_map(feature_map_out)
+    {}
 
+    ~Compiler() = default;
     Frame &self() { return resolve_stack.back(); }
 
     FeatureRef failed(const vespalib::string &feature_name, const vespalib::string &reason) {
         if (!compile_error) {
-            LOG(warning, "invalid rank feature: '%s' (%s)", feature_name.c_str(), reason.c_str());
+            vespalib::string msg = vespalib::make_string("invalid rank feature: '%s' (%s)", feature_name.c_str(), reason.c_str());
+            LOG(warning, "%s", msg.c_str());
+            errors.emplace_back(msg);
             for (size_t i = resolve_stack.size(); i > 0; --i) {
                 const auto &frame = resolve_stack[i - 1];
                 if (&frame != &self()) {
-                    LOG(warning, "  ... needed by rank feature '%s'", frame.parser.featureName().c_str());
+                    vespalib::string e = vespalib::make_string("  ... needed by rank feature '%s'", frame.parser.featureName().c_str());
+                    LOG(warning, "%s", e.c_str());
+                    errors.emplace_back(e);
                 }
             }
             compile_error = true;
@@ -187,7 +195,8 @@ BlueprintResolver::BlueprintResolver(const BlueprintFactory &factory,
       _seeds(),
       _executorSpecs(),
       _featureMap(),
-      _seedMap()
+      _seedMap(),
+      _compileErrors()
 {
 }
 
@@ -205,6 +214,7 @@ BlueprintResolver::compile()
     for (const auto &seed: _seeds) {
         auto ref = compiler.resolve_feature(seed, Blueprint::AcceptInput::ANY);
         if (compiler.compile_error) {
+            _compileErrors = std::move(compiler.errors);
             return false;
         }
         _seedMap.emplace(FeatureNameParser(seed).featureName(), ref);
@@ -212,10 +222,6 @@ BlueprintResolver::compile()
     return true;
 }
 
-const BlueprintResolver::ExecutorSpecList &
-BlueprintResolver::getExecutorSpecs() const
-{
-    return _executorSpecs;
 }
 
 const BlueprintResolver::FeatureMap &

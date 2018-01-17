@@ -19,7 +19,8 @@ struct RankFixture {
     }
 
     bool verify(const std::string &feature) const {
-        return verifyFeature(factory, indexEnv, feature, "feature verification test");
+        std::vector<vespalib::string> errors;
+        return verifyFeature(factory, indexEnv, feature, "feature verification test", errors);
     }
 };
 
