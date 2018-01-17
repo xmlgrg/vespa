@@ -31,7 +31,7 @@ App::Main()
     bool ok = verifyRankSetup(_argv[1], messages);
 
     if ( ! messages.empty() ) {
-
+        LOG(info, "%s", messages.c_str());
     }
     if (!ok) {
         return 1;

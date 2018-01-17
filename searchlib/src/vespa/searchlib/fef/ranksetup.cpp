@@ -5,8 +5,7 @@
 #include "featurenameparser.h"
 #include <vespa/vespalib/util/stringfmt.h>
 
-#include <vespa/log/log.h>
-LOG_SETUP(".fef.ranksetup");
+using vespalib::make_string;
 
 namespace {
 class VisitorAdapter : public search::fef::IDumpFeatureVisitor
@@ -155,10 +154,7 @@ RankSetup::compile()
             _firstPhaseRankFeature = parser.featureName();
             _first_phase_resolver->addSeed(_firstPhaseRankFeature);
         } else {
-            vespalib::string e = vespalib::make_string("invalid feature name for initial rank: '%s'",
-                                                       _firstPhaseRankFeature.c_str());
-            LOG(warning, "%s", e.c_str());
-            _compileErrors.emplace_back(e);
+            _compileErrors.emplace_back(make_string("invalid feature name for initial rank: '%s'", _firstPhaseRankFeature.c_str()));
             _compileError = true;
         }
     }
@@ -168,10 +164,7 @@ RankSetup::compile()
             _secondPhaseRankFeature = parser.featureName();
             _second_phase_resolver->addSeed(_secondPhaseRankFeature);
         } else {
-            vespalib::string e = vespalib::make_string("invalid feature name for final rank: '%s'",
-                                                       _secondPhaseRankFeature.c_str());
-            LOG(warning, "%s", e.c_str());
-            _compileErrors.emplace_back(e);
+            _compileErrors.emplace_back(make_string("invalid feature name for final rank: '%s'", _secondPhaseRankFeature.c_str()));
             _compileError = true;
         }
     }

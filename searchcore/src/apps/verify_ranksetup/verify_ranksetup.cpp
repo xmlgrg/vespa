@@ -127,11 +127,9 @@ VerifyRankSetup::verifyConfig(const RankProfilesConfig &rankCfg, const Indexsche
         }
         if (verify(schema, properties, repo)) {
             vespalib::string msg = vespalib::make_string("rank profile '%s': pass", profile.name.c_str());
-            LOG(info, "%s", msg.c_str());
             _errors.emplace_back(msg);
         } else {
             vespalib::string msg = vespalib::make_string("rank profile '%s': FAIL", profile.name.c_str());
-            LOG(error, "%s", msg.c_str());
             _errors.emplace_back(msg);
             ok = false;
         }
@@ -159,11 +157,9 @@ VerifyRankSetup::verify(const std::string & configid)
                           *attributesHandle->getConfig(), *constantsHandle->getConfig());
     } catch (ConfigRuntimeException & e) {
         vespalib::string msg = vespalib::make_string("Unable to subscribe to config: %s", e.getMessage().c_str());
-        LOG(error, "%s", msg.c_str());
         _errors.emplace_back(msg);
     } catch (InvalidConfigException & e) {
         vespalib::string msg = vespalib::make_string("Error getting config: %s", e.getMessage().c_str());
-        LOG(error, "%s", msg.c_str());
         _errors.emplace_back(msg);
     }
     return ok;
