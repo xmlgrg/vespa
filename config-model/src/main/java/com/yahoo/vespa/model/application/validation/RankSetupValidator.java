@@ -80,7 +80,7 @@ public class RankSetupValidator extends Validator {
                              DeployLogger deployLogger, File tempDir) {
         Instant start = Instant.now();
         try {
-            boolean ret = validateWithJNI(configId);
+            boolean ret = validateWithJNI(configId, searchCluster.getClusterName(), sdName, deployLogger);
             if (!ret) {
                 // Give up, don't say same error msg repeatedly
                 deleteTempDir(tempDir);
@@ -129,22 +129,29 @@ public class RankSetupValidator extends Validator {
         IOUtils.writeFile(dir + configName, StringUtilities.implodeMultiline(ConfigInstance.serialize(config)), false);
     }
 
-    private boolean validateWithJNI(String configId) {
+    private boolean validateWithJNI(String configId, String searchCluster, String sdName, DeployLogger deployLogger) {
         try {
-            return NativeVerifyRankSetup.verify(configId);
+            NativeVerifyRankSetup verifier = new NativeVerifyRankSetup();
+            boolean result = verifier.verify(configId);
+            if ( ! result ) {
+                validateFail(verifier.getMessages(), searchCluster, sdName, deployLogger);
+            }
+            return result;
         } catch (UnsatisfiedLinkError e) {
+            validateWarnJNI(e, deployLogger);
             return false;
         } catch (NoClassDefFoundError e) {
+            validateWarnJNI(e, deployLogger);
             return false;
         }
     }
-    private boolean execValidate(String configId, SearchCluster sc, String sdName, DeployLogger deployLogger) {
+    private boolean execValidate(String configId, String searchCluster, String sdName, DeployLogger deployLogger) {
         String job = "vespa-verify-ranksetup-bin " + configId;
         ProcessExecuter executer = new ProcessExecuter();
         try {
             Pair<Integer, String> ret = executer.exec(job);
             if (ret.getFirst() != 0) {
-                validateFail(ret.getSecond(), sc.getClusterName(), sdName, deployLogger);
+                validateFail(ret.getSecond(), searchCluster, sdName, deployLogger);
             }
         } catch (IOException e) {
             validateWarn(e, deployLogger);
@@ -153,14 +160,20 @@ public class RankSetupValidator extends Validator {
         return true;
     }
 
+    private void validateWarnJNI(Throwable e, DeployLogger deployLogger) {
+        String msg = "Unable to run jni code to validate rank expression, validation of rank expressions will only take place when you start Vespa: " +
+                Exceptions.toMessageString(e);
+        deployLogger.log(LogLevel.WARNING, msg);
+    }
+
     private void validateWarn(Exception e, DeployLogger deployLogger) {
         String msg = "Unable to execute 'vespa-verify-ranksetup', validation of rank expressions will only take place when you start Vespa: " +
                 Exceptions.toMessageString(e);
         deployLogger.log(LogLevel.WARNING, msg);
     }
 
-    private void validateFail(String output, String sc, String sdName, DeployLogger deployLogger) {
-        String errMsg = "For search cluster '"  + "', search definition '" + sdName + "': error in rank setup. Details:\n";
+    private void validateFail(String output, String searchCluster, String sdName, DeployLogger deployLogger) {
+        String errMsg = "For search cluster '"  + searchCluster + "', search definition '" + sdName + "': error in rank setup. Details:\n";
         for (String line : output.split("\n")) {
             // Remove debug lines from start script
             if (line.startsWith("debug\t")) continue;

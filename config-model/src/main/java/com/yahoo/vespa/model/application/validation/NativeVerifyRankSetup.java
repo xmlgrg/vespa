@@ -4,5 +4,9 @@ public class NativeVerifyRankSetup {
     static {
         System.loadLibrary("searchcore_verify_ranksetup");
     }
-    public static native boolean verify(String configid);
+
+    private String messages;
+
+    public String getMessages() { return messages; }
+    public native boolean verify(String configid);
 }
