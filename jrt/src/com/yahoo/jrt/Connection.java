@@ -321,7 +321,13 @@ class Connection extends Target {
 
     private void write() throws IOException {
         synchronized (this) {
-            queue.flush(myQueue);
+            if (myQueue.isEmpty()) {
+                Queue tmp = myQueue;
+                myQueue = queue;
+                queue = tmp;
+            } else {
+                queue.flush(myQueue);
+            }
         }
         for (int i = 0; i < WRITE_REDO; i++) {
             while (output.bytes() < WRITE_SIZE) {
