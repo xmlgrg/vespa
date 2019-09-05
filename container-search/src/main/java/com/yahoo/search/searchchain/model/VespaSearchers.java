@@ -35,6 +35,9 @@ public class VespaSearchers {
                     com.yahoo.prelude.semantics.SemanticSearcher.class,
                     com.yahoo.search.grouping.GroupingQueryParser.class);
 
+    public static final Collection<ChainedComponentModel> vespaWarmupSearcherModels =
+            toSearcherModels(com.yahoo.search.searchers.DummyBackend.class);
+
 
     public static final Collection<ChainedComponentModel> nativeSearcherModels;
 
