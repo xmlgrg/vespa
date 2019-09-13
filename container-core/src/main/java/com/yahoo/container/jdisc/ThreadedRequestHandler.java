@@ -17,6 +17,7 @@ import com.yahoo.jdisc.handler.ReadableContentChannel;
 import com.yahoo.jdisc.handler.ResponseDispatch;
 import com.yahoo.jdisc.handler.ResponseHandler;
 import com.yahoo.log.LogLevel;
+import com.yahoo.protect.Process;
 
 import java.time.Duration;
 import java.util.Map;
@@ -139,6 +140,7 @@ public abstract class ThreadedRequestHandler extends AbstractRequestHandler {
             numRejectedRequests = 0;
         }
         log.log(LogLevel.WARNING, "Rejected " + numRejectedRequestsSnapshot + " requests on cause of no available worker threads.");
+        Process.dumpThreads();
     }
 
     private void incrementRejectedRequests() {
