@@ -64,6 +64,7 @@ public class MinimalQueryInserter extends Searcher {
             log.warning("Warmup code generated unexpected yql: " + query.yqlRepresentation());
             return false;
         }
+        log.info("yql warmup completed.");
         return true;
     }
 
