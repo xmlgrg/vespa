@@ -410,8 +410,18 @@
 
             <dependency>
                 <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-cloudwatch</artifactId>
+                <version>${aws-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>${aws.sdk.version}</version>
+                <version>${aws-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-sts</artifactId>
+                <version>${aws-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.cverges.expect4j</groupId>
@@ -770,7 +780,7 @@
         <asm.version>7.0</asm.version>
         <!-- Athenz dependencies. Make sure these dependencies match those in Vespa's internal repositories -->
         <athenz.version>1.8.29</athenz.version>
-        <aws.sdk.version>1.11.542</aws.sdk.version>
+        <aws-sdk.version>1.11.688</aws-sdk.version>
         <commons-lang.version>2.6</commons-lang.version>
         <!-- WARNING: If you change curator version, you also need to update
                  zkfacade/src/main/java/org/apache/curator/**/package-info.java

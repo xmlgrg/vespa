@@ -100,8 +100,12 @@
       <version>${project.version}</version>
       <scope>compile</scope>
       <exclusions>
-        <!-- Not needed to generate config and saves 1 MB. -->
         <exclusion>
+          <groupId>com.amazonaws</groupId>
+          <artifactId>aws-java-sdk-cloudwatch</artifactId>
+        </exclusion>
+        <exclusion>
+          <!-- Not needed to generate config and saves 1 MB. -->
           <groupId>com.yahoo.vespa</groupId>
           <artifactId>http-utils</artifactId>
         </exclusion>
