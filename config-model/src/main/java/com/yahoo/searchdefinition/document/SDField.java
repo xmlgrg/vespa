@@ -49,17 +49,15 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
      * to be specified in other rank profiles, while negative values
      * turns the capability off.
      */
-    private int literalBoost=-1;
+    private int literalBoost = -1;
 
     /** 
      * The weight of this field. This is a percentage,
      * so 100 is default to provide the identity transform. 
      */
-    private int weight=100;
+    private int weight = 100;
 
-    /**
-     * Indicates what kind of matching should be done on this field
-     */
+    /** Indicates what kind of matching should be done on this field */
     private Matching matching = new Matching();
 
     /** Attribute settings, or null if there are none */
@@ -69,13 +67,13 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
      * The stemming setting of this field, or null to use the default.
      * Default is determined by the owning search definition.
      */
-    private Stemming stemming=null;
+    private Stemming stemming = null;
 
     /** How content of this field should be accent normalized etc. */
     private NormalizeLevel normalizing = new NormalizeLevel();
 
     /** Extra query commands of this field */
-    private List<String> queryCommands=new java.util.ArrayList<>(0);
+    private List<String> queryCommands = new java.util.ArrayList<>(0);
 
     /** Summary fields defined in this field */
     private Map<String, SummaryField> summaryFields = new java.util.LinkedHashMap<>(0);

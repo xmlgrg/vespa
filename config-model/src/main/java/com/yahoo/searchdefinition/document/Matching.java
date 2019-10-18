@@ -44,12 +44,12 @@ public class Matching implements Cloneable, Serializable {
     private boolean algorithmUserSet = false;
 
     /** The gram size is the n in n-gram, or -1 if not set. Should only be set with gram matching. */
-    private int gramSize=-1;
+    private int gramSize = -1;
 
     /** Maximum number of characters to consider when searching in this field. Used for limiting resources, especially in streaming search. */
     private Integer maxLength;
 
-    private String exactMatchTerminator=null;
+    private String exactMatchTerminator = null;
 
     /** Creates a matching of type "text" */
     public Matching() {}
@@ -87,7 +87,7 @@ public class Matching implements Cloneable, Serializable {
     /** Returns the gram size, or -1 if not set. Should only be set with gram matching. */
     public int getGramSize() { return gramSize; }
 
-    public void setGramSize(int gramSize) { this.gramSize=gramSize; }
+    public void setGramSize(int gramSize) { this.gramSize = gramSize; }
 
     /**
      * Merge data from another matching object
@@ -121,10 +121,12 @@ public class Matching implements Cloneable, Serializable {
         this.exactMatchTerminator = exactMatchTerminator;
     }
 
+    @Override
     public String toString() {
         return type + " matching [" + (type==Type.GRAM ? "gram size " + gramSize : "supports " + algorithm) + "], [exact-terminator "+exactMatchTerminator+"]";
     }
 
+    @Override
     public Matching clone() {
         try {
             return (Matching)super.clone();
@@ -138,17 +140,18 @@ public class Matching implements Cloneable, Serializable {
     public boolean equals(Object o) {
         if (! (o instanceof Matching)) return false;
 
-        Matching other=(Matching)o;
+        Matching other = (Matching)o;
         if ( ! other.type.equals(this.type)) return false;
         if ( ! other.algorithm.equals(this.algorithm)) return false;
-        if ( this.exactMatchTerminator==null && other.exactMatchTerminator!=null) return false;
-        if ( this.exactMatchTerminator!=null && ( ! this.exactMatchTerminator.equals(other.exactMatchTerminator)) )
+        if ( this.exactMatchTerminator == null && other.exactMatchTerminator != null) return false;
+        if ( this.exactMatchTerminator != null && ( ! this.exactMatchTerminator.equals(other.exactMatchTerminator)) )
             return false;
-        if ( gramSize!=other.gramSize) return false;
+        if ( gramSize != other.gramSize) return false;
         return true;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return java.util.Objects.hash(type, algorithm, exactMatchTerminator, gramSize);
     }
 
