@@ -53,17 +53,17 @@ public abstract class LowercasingSearcher extends Searcher {
         for (Iterator<Item> i = base.getItemIterator(); i.hasNext();) {
             Item next = i.next();
             if (next instanceof WordItem) {
-                lowerCase((WordItem) next, indexFacts);
+                lowercase((WordItem) next, indexFacts);
             } else if (next instanceof SameElementItem) {
                 traverseSameElement((SameElementItem) next, indexFacts);
             } else if (next instanceof CompositeItem) {
                 traverse((CompositeItem) next, indexFacts);
             } else if (next instanceof WeightedSetItem) {
                 if (transformWeightedSets) {
-                    lowerCase((WeightedSetItem) next, indexFacts);
+                    lowercase((WeightedSetItem) next, indexFacts);
                 }
             } else if (next instanceof WordAlternativesItem) {
-                lowerCase((WordAlternativesItem) next, indexFacts);
+                lowercase((WordAlternativesItem) next, indexFacts);
             }
         }
     }
@@ -72,19 +72,19 @@ public abstract class LowercasingSearcher extends Searcher {
         for (Iterator<Item> i = base.getItemIterator(); i.hasNext();) {
             Item next = i.next();
             if (next instanceof WordItem) {
-               lowerCase(base.getFieldName(), (WordItem) next, indexFacts);
+               lowercase(base.getFieldName(), (WordItem) next, indexFacts);
             }
         }
     }
 
-    private void lowerCase(WordItem word, IndexFacts.Session indexFacts) {
+    private void lowercase(WordItem word, IndexFacts.Session indexFacts) {
         if (shouldLowercase(word, indexFacts)) {
             word.setWord(toLowerCase(word.getWord()));
             word.setLowercased(true);
         }
     }
 
-    private void lowerCase(String commonPath, WordItem word, IndexFacts.Session indexFacts) {
+    private void lowercase(String commonPath, WordItem word, IndexFacts.Session indexFacts) {
         if (shouldLowercase(commonPath, word, indexFacts)) {
             word.setWord(toLowerCase(word.getWord()));
             word.setLowercased(true);
@@ -103,13 +103,13 @@ public abstract class LowercasingSearcher extends Searcher {
         }
     }
 
-    private boolean syntheticLowerCaseCheck(String indexName, IndexFacts.Session indexFacts, boolean isFromQuery) {
+    private boolean syntheticLowercaseCheck(String indexName, IndexFacts.Session indexFacts, boolean isFromQuery) {
         WordItem w = new WordItem("not-used", indexName, isFromQuery);
         return shouldLowercase(w, indexFacts);
     }
 
-    private void lowerCase(WeightedSetItem set, IndexFacts.Session indexFacts) {
-        if ( ! syntheticLowerCaseCheck(set.getIndexName(), indexFacts, true)) {
+    private void lowercase(WeightedSetItem set, IndexFacts.Session indexFacts) {
+        if ( ! syntheticLowercaseCheck(set.getIndexName(), indexFacts, true)) {
             return;
         }
 
@@ -133,8 +133,8 @@ public abstract class LowercasingSearcher extends Searcher {
         }
     }
 
-    private void lowerCase(WordAlternativesItem alternatives, IndexFacts.Session indexFacts) {
-        if (!syntheticLowerCaseCheck(alternatives.getIndexName(), indexFacts, alternatives.isFromQuery())) {
+    private void lowercase(WordAlternativesItem alternatives, IndexFacts.Session indexFacts) {
+        if (!syntheticLowercaseCheck(alternatives.getIndexName(), indexFacts, alternatives.isFromQuery())) {
             return;
         }
         for (WordAlternativesItem.Alternative term : alternatives.getAlternatives()) {

@@ -84,7 +84,7 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
     private boolean idOverride = false;
 
     /** Struct fields defined in this field */
-    private Map<String,SDField> structFields = new java.util.LinkedHashMap<>(0);
+    private Map<String, SDField> structFields = new java.util.LinkedHashMap<>(0);
 
     /** The document that this field was declared in, or null*/
     protected SDDocumentType ownerDocType = null;
@@ -98,10 +98,11 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
     private boolean isExtraField = false;
 
     /**
-     * Creates a new field. This method is only used to create reserved fields
-     * @param name The name of the field
-     * @param dataType The datatype of the field
-     * @param isHeader Whether this is a "header" field or a "content" field (true = "header").
+     * Creates a new field. This method is only used to create reserved fields.
+     *
+     * @param name the name of the field
+     * @param dataType the datatype of the field
+     * @param isHeader whether this is a "header" field or a "content" field (true = "header")
     */
     protected SDField(SDDocumentType repo, String name, int id, DataType dataType, boolean isHeader, boolean populate) {
         super(name, id, dataType, isHeader);
@@ -113,13 +114,12 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
     }
 
     /**
-       Creates a new field.
-
-       @param name The name of the field
-       @param dataType The datatype of the field
-       @param isHeader Whether this is a "header" field or a "content" field
-       (true = "header").
-    */
+     * Creates a new field.
+     *
+     * @param name the name of the field
+     * @param dataType the datatype of the field
+     * @param isHeader whether this is a "header" field or a "content" field (true = "header").
+     */
     public SDField(SDDocumentType repo, String name, DataType dataType, boolean isHeader, boolean populate) {
         super(name,dataType,isHeader);
         populate(populate, repo, name, dataType, isHeader);
@@ -175,8 +175,8 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
     /**
      * Constructor for <b>header</b> fields
      *
-     * @param name The name of the field
-     * @param dataType The datatype of the field
+     * @param name the name of the field
+     * @param dataType the datatype of the field
      */
     public SDField(SDDocumentType repo,  String name, DataType dataType) {
         this(repo, name,dataType,true, true);
@@ -418,8 +418,7 @@ public class SDField extends Field implements TypedKey, FieldOperationContainer,
         return (dt != null);
     }
 
-    /** Parse an indexing expression which will use the simple linguistics implementatino suitable for testing */
-    @SuppressWarnings("deprecation")
+    /** Parse an indexing expression which will use the simple linguistics implementation suitable for testing */
     public void parseIndexingScript(String script) {
         parseIndexingScript(script, new SimpleLinguistics());
     }

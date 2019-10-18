@@ -138,7 +138,7 @@ public class IndexInfo extends Derived implements IndexInfoConfig.Producer {
                 addIndexCommand(field, stemCmd(field, search), new StemmingOverrider(this, search));
             }
             if (normalizeAccents(field)) {
-                addIndexCommand(field, CMD_NORMALIZE);
+                //addIndexCommand(field, CMD_NORMALIZE);
             }
             if (field.getMatching() == null || field.getMatching().getType().equals(Matching.Type.TEXT)) {
                 addIndexCommand(field, CMD_PLAIN_TOKENS);

@@ -71,11 +71,11 @@ public class FieldSetSettings extends Processor {
         NormalizeLevel.Level normalizing = null;
         for (String fieldName : fieldSet.getFieldNames()) {
             ImmutableSDField field = search.getField(fieldName);
-            NormalizeLevel.Level fieldNorm = field.getNormalizing().getLevel();
+            NormalizeLevel.Level fieldNormalizing = field.getNormalizing().getLevel();
             if (normalizing == null) {
-                normalizing = fieldNorm;
+                normalizing = fieldNormalizing;
             } else {
-                if ( ! normalizing.equals(fieldNorm)) {
+                if ( ! normalizing.equals(fieldNormalizing)) {
                     warn(search, field.asField(),
                             "The normalization settings for the fields in " + fieldSet + " are inconsistent " +
                                     "(explicitly or because of field type). This may lead to recall and ranking issues.");

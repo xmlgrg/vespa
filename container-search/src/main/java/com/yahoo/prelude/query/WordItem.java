@@ -126,9 +126,7 @@ public class WordItem extends TermItem {
         this.fromSegmented = fromSegmented;
     }
 
-    public boolean isLowercased() {
-        return lowercased;
-    }
+    public boolean isLowercased() { return lowercased; }
 
     public void setLowercased(boolean lowercased) {
         this.lowercased = lowercased;

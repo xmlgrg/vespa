@@ -5,9 +5,10 @@ import com.yahoo.searchdefinition.document.NormalizeLevel;
 import com.yahoo.searchdefinition.document.SDField;
 
 /**
- * @author <a href="mailto:einarmr@yahoo-inc.com">Einar M R Rosenvinge</a>
+ * @author Einar M R Rosenvinge
  */
 public class NormalizingOperation implements FieldOperation {
+
     private NormalizeLevel.Level level;
 
     public NormalizingOperation(String setting) {

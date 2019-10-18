@@ -2,13 +2,9 @@
 package com.yahoo.searchdefinition.document;
 
 /**
- * class representing the character normalization
- * we want to do on query and indexed text.
- * Levels are strict subsets, so doing accent
- * removal means doing codepoint normalizing
- * and case normalizing also.
+ * A representation of the character normalization we want to do on query and indexed text.
+ * Levels are strict subsets, so doing accent removal means doing codepoint normalizing and case normalizing also.
  */
-// TODO: Missing author
 public class NormalizeLevel {
 
     /**
@@ -26,14 +22,10 @@ public class NormalizeLevel {
     private boolean userSpecified = false;
     private Level level = Level.ACCENT;
 
-    /**
-     * Returns whether accents should be removed from text
-     */
+    /** Returns whether accents should be removed from text */
     public boolean doRemoveAccents() { return level == Level.ACCENT; }
 
-    /**
-     * Construct a default (full) normalizelevel,
-     */
+    /** Constructs a default (full) normalize level */
     public NormalizeLevel() {}
 
     /**

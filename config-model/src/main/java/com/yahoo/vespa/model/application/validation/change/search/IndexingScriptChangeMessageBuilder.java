@@ -65,7 +65,7 @@ public class IndexingScriptChangeMessageBuilder {
     private void checkNormalizing(ChangeMessageBuilder builder) {
         NormalizeLevel.Level currentLevel = currentField.getNormalizing().getLevel();
         NormalizeLevel.Level nextLevel = nextField.getNormalizing().getLevel();
-        if (!currentLevel.equals(nextLevel)) {
+        if ( ! currentLevel.equals(nextLevel)) {
             builder.addChange("normalizing", currentLevel.toString(), nextLevel.toString());
         }
     }
@@ -77,9 +77,9 @@ public class IndexingScriptChangeMessageBuilder {
             if (currentSummaryField != null) {
                 SummaryTransform currentTransform = currentSummaryField.getTransform();
                 SummaryTransform nextTransform = nextSummaryField.getTransform();
-                if (!currentSummaryField.getTransform().equals(nextSummaryField.getTransform())) {
+                if ( ! currentSummaryField.getTransform().equals(nextSummaryField.getTransform())) {
                     builder.addChange("summary field '" + fieldName + "' transform",
-                            currentTransform.getName(), nextTransform.getName());
+                                      currentTransform.getName(), nextTransform.getName());
                 }
             }
         }
