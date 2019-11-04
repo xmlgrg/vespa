@@ -411,7 +411,6 @@ public class YqlParser implements Parser {
         return fillWeightedSet(ast, args.get(1), new WeightedSetItem(lookup.getIndex(args.get(0))));
     }
 
-    private Item buildDotProduct(OperatorNode<ExpressionOperator> ast) {
     private Item buildDotProduct(OperatorNode<ExpressionOperator> ast, GetIndex lookup) {
         List<OperatorNode<ExpressionOperator>> args = ast.getArgument(1);
         Preconditions.checkArgument(args.size() == 2, "Expected 2 arguments, got %s.", args.size());
@@ -1044,7 +1043,7 @@ public class YqlParser implements Parser {
         return convertVarArgs(spec, 1, new RankItem(), lookup);
     }
 
-    private CompositeItem convertVarArgs(OperatorNode<ExpressionOperator> ast, int argIdx, @NonNull CompositeItem out, GetIndex lookup) {
+    private CompositeItem convertVarArgs(OperatorNode<ExpressionOperator> ast, int argIdx, CompositeItem out, GetIndex lookup) {
         Iterable<OperatorNode<ExpressionOperator>> args = ast.getArgument(argIdx);
         for (OperatorNode<ExpressionOperator> arg : args) {
             assertHasOperator(arg, ExpressionOperator.class);
