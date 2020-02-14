@@ -224,6 +224,12 @@ public class Flags {
             "Takes effect on restart of Docker container",
             ZONE_ID, APPLICATION_ID);
 
+    public static final UnboundBooleanFlag FLEET_CANARY_HOST = defineFeatureFlag(
+            "fleet-canary-host", false,
+            "Enrolls the host to the canary fleet",
+            "Takes effect on next node agent tick",
+            HOSTNAME, ZONE_ID);
+
     /** WARNING: public for testing: All flags should be defined in {@link Flags}. */
     public static UnboundBooleanFlag defineFeatureFlag(String flagId, boolean defaultValue, String description,
                                                        String modificationEffect, FetchVector.Dimension... dimensions) {
