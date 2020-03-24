@@ -286,9 +286,6 @@ RPCSend::invoke(FRT_RPCRequest *req)
 void
 RPCSend::doRequest(FRT_RPCRequest *req, const IProtocol * protocol, std::unique_ptr<Params> params)
 {
-    shortCircuit(*req, params->getVersion());
-    return;
-
     Routable::UP routable = protocol->decode(params->getVersion(), params->getPayload());
     req->DiscardBlobs();
     if ( ! routable ) {
@@ -302,6 +299,7 @@ RPCSend::doRequest(FRT_RPCRequest *req, const IProtocol * protocol, std::unique_
                    Error(ErrorCode::DECODE_ERROR, "Payload decoded to a reply when expecting a mesage."));
         return;
     }
+
     Message::UP msg(static_cast<Message*>(routable.release()));
     vespalib::stringref route = params->getRoute();
     if (!route.empty()) {

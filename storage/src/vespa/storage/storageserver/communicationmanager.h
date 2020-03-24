@@ -111,6 +111,7 @@ private:
     std::mutex       _earlierGenerationsLock;
     EarlierProtocols _earlierGenerations;
 
+    void shortCircuit(std::unique_ptr<mbus::Message> msg);
     void onOpen() override;
     void onClose() override;
 

@@ -100,6 +100,13 @@ namespace {
 }
 
 void
+CommunicationManager::shortCircuit(std::unique_ptr<mbus::Message> msg) {
+    auto reply = std::make_unique<mbus::EmptyReply>();
+    msg->swapState(*reply);
+    _messageBusSession->reply(std::move(reply));
+}
+
+void
 CommunicationManager::handleMessage(std::unique_ptr<mbus::Message> msg)
 {
     MBUS_TRACE(msg->getTrace(), 4, getNodeId(_component)
@@ -117,6 +124,8 @@ CommunicationManager::handleMessage(std::unique_ptr<mbus::Message> msg)
     }
     const vespalib::string & protocolName = msg->getProtocol();
 
+    shortCircuit(std::move(msg));
+    return;
     if (protocolName == documentapi::DocumentProtocol::NAME) {
         std::unique_ptr<documentapi::DocumentMessage> docMsgPtr(static_cast<documentapi::DocumentMessage*>(msg.release()));
 
