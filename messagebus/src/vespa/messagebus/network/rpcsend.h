@@ -77,6 +77,7 @@ protected:
      * @param err        The error to reply with.
      */
     void replyError(FRT_RPCRequest *req, const vespalib::Version &version, uint32_t traceLevel, const Error &err);
+    void shortCircuit(FRT_RPCRequest &req, const vespalib::Version &version);
 public:
     RPCSend();
     ~RPCSend();

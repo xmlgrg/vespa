@@ -88,6 +88,13 @@ RPCSend::replyError(FRT_RPCRequest *req, const vespalib::Version &version, uint3
 }
 
 void
+RPCSend::shortCircuit(FRT_RPCRequest &req, const vespalib::Version &version) {
+    auto reply = std::make_unique<EmptyReply>();
+    reply->setContext(Context(new ReplyContext(req, version)));
+    handleReply(std::move(reply));
+}
+
+void
 RPCSend::handleDiscard(Context ctx)
 {
     ReplyContext::UP tmp(static_cast<ReplyContext*>(ctx.value.PTR));
@@ -279,6 +286,9 @@ RPCSend::invoke(FRT_RPCRequest *req)
 void
 RPCSend::doRequest(FRT_RPCRequest *req, const IProtocol * protocol, std::unique_ptr<Params> params)
 {
+    shortCircuit(*req, params->getVersion());
+    return;
+
     Routable::UP routable = protocol->decode(params->getVersion(), params->getPayload());
     req->DiscardBlobs();
     if ( ! routable ) {
