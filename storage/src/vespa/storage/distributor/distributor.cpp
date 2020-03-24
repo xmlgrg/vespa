@@ -828,7 +828,7 @@ Distributor::doNonCriticalTick(framework::ThreadIndex)
     _tickResult = framework::ThreadWaitInfo::NO_MORE_CRITICAL_WORK_KNOWN;
     handleStatusRequests();
     startExternalOperations();
-    if (!initializing() && ((_nonCriticalCount++ % 4) == 0) {
+    if (!initializing() && ((_nonCriticalCount++ % 4) == 0)) {
         scanNextBucket();
         startNextMaintenanceOperation();
         if (isInRecoveryMode()) {
