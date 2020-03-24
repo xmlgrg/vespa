@@ -294,7 +294,7 @@ private:
     ClientRequestPriorityQueue _client_request_priority_queue;
     MessageQueue _fetchedMessages;
     framework::TickingThreadPool& _threadPool;
-    vespalib::Monitor _statusMonitor;
+    size_t _nonCriticalCount;
 
     mutable std::vector<std::shared_ptr<Status>> _statusToDo;
     mutable std::vector<std::shared_ptr<Status>> _fetchedStatusRequests;

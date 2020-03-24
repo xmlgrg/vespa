@@ -79,6 +79,7 @@ Distributor::Distributor(DistributorComponentRegister& compReg,
       _idealStateManager(*this, *_bucketSpaceRepo, *_readOnlyBucketSpaceRepo, compReg, manageActiveBucketCopies),
       _externalOperationHandler(*this, *_bucketSpaceRepo, *_readOnlyBucketSpaceRepo, _idealStateManager, compReg),
       _threadPool(threadPool),
+      _nonCriticalCount(0),
       _initializingIsUp(true),
       _doneInitializeHandler(doneInitHandler),
       _doneInitializing(false),
@@ -827,7 +828,7 @@ Distributor::doNonCriticalTick(framework::ThreadIndex)
     _tickResult = framework::ThreadWaitInfo::NO_MORE_CRITICAL_WORK_KNOWN;
     handleStatusRequests();
     startExternalOperations();
-    if (!initializing()) {
+    if (!initializing() && ((_nonCriticalCount++ % 4) == 0) {
         scanNextBucket();
         startNextMaintenanceOperation();
         if (isInRecoveryMode()) {
