@@ -123,9 +123,6 @@ CommunicationManager::handleMessage(std::unique_ptr<mbus::Message> msg)
         return;
     }
     const vespalib::string & protocolName = msg->getProtocol();
-
-    shortCircuit(std::move(msg));
-    return;
     if (protocolName == documentapi::DocumentProtocol::NAME) {
         std::unique_ptr<documentapi::DocumentMessage> docMsgPtr(static_cast<documentapi::DocumentMessage*>(msg.release()));
 
@@ -161,6 +158,10 @@ CommunicationManager::handleMessage(std::unique_ptr<mbus::Message> msg)
         cmd->setTrace(storMsgPtr->getTrace());
         cmd->setTransportContext(std::make_unique<StorageTransportContext>(std::move(storMsgPtr)));
 
+        if (cmd->getType() == api::MessageType::PUT) {
+            sendReply(cmd->makeReply());
+            return;
+        }
         enqueue(std::move(cmd));
     } else {
         LOGBM(warning, "Received unsupported message type %d for protocol '%s'",
@@ -753,7 +754,7 @@ CommunicationManager::run(framework::ThreadHandle& thread)
         thread.registerTick();
         std::shared_ptr<api::StorageMessage> msg;
         if (_eventQueue.getNext(msg, 100)) {
-            process(msg);
+            process(std::move(msg));
         }
         std::lock_guard<std::mutex> guard(_earlierGenerationsLock);
         for (EarlierProtocols::iterator it(_earlierGenerations.begin());
