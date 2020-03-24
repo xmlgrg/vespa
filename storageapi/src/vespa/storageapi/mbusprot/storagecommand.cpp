@@ -11,6 +11,9 @@ StorageCommand::StorageCommand(api::StorageCommand::SP cmd)
 
 std::unique_ptr<mbus::Reply>
 StorageCommand::makeReply() {
-    return std::make_unique<StorageReply>(_cmd->makeReply());
+    auto reply = _cmd->makeReply();
+    dynamic_cast<api::BucketInfoReply &>(*reply).setBucketInfo(api::BucketInfo(1,1,1));
+    return std::make_unique<StorageReply>(std::move(reply));
 }
+
 }
