@@ -25,6 +25,7 @@ public:
         return ((getInternalMessage()->getPriority()) / 255) * 16;
     }
 
+    std::unique_ptr<mbus::Reply> makeReply() override;
 private:
     api::StorageCommand::SP _cmd;
 };

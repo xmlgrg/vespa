@@ -67,4 +67,9 @@ Message::getTimeRemainingNow() const
     return std::max(0ns, _timeRemaining - (vespalib::steady_clock::now() - _timeReceived));
 }
 
+std::unique_ptr<Reply>
+Message::makeReply() {
+    return std::unique_ptr<Reply>();
+}
+
 } // namespace mbus

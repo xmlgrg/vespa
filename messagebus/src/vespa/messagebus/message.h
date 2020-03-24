@@ -181,6 +181,8 @@ public:
      * @return This, to allow chaining.
      */
     Message &setRetry(uint32_t retry) { _retry = retry; return *this; }
+
+    virtual std::unique_ptr<Reply> makeReply();
 private:
     Route         _route;
     time_point    _timeReceived;
