@@ -136,6 +136,12 @@ RPCSend::send(RoutingNode &recipient, const vespalib::Version &version,
                                           address.getServiceName().c_str(), vespalib::to_s(ctx->getTimeout())));
     }
 
+    if (msg.getType() == 10) {
+        auto reply = std::make_unique<EmptyReply>();
+        _net->getOwner().deliverReply(std::move(reply), recipient);
+        return;
+    }
+
     if (hop.getIgnoreResult()) {
         address.getTarget().getFRTTarget().InvokeVoid(req);
         if (ctx->getTrace().shouldTrace(TraceLevel::SEND_RECEIVE)) {
