@@ -113,7 +113,7 @@ bool
 FNET_TransportThread::PostEvent(FNET_ControlPacket *cpacket,
                                 FNET_Context context)
 {
-    bool wasEmpty;
+    bool needWakeup;
     {
         std::unique_lock<std::mutex> guard(_lock);
         if (IsShutDown()) {
@@ -121,10 +121,11 @@ FNET_TransportThread::PostEvent(FNET_ControlPacket *cpacket,
             SafeDiscardEvent(cpacket, context);
             return false;
         }
-        wasEmpty = _queue.IsEmpty_NoLock() && _owner.optimizeFor() == vespalib::Executor::OptimizeFor::LATENCY;
+        needWakeup = ((_owner.optimizeFor() == vespalib::Executor::OptimizeFor::LATENCY) &&_queue.IsEmpty_NoLock()) ||
+                (_owner.optimizeFor() == vespalib::Executor::OptimizeFor::ADAPTIVE && (_queue.GetPacketCnt_NoLock() == 100));
         _queue.QueuePacket_NoLock(cpacket, context);
     }
-    if (wasEmpty) {
+    if (needWakeup) {
         _selector.wakeup();
     }
     return true;
